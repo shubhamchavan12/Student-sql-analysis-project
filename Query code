@@ -1,0 +1,79 @@
+SELECT
+		 "student_response"."roll_number" as roll_no,
+		 "`student_list"."student_name" as name,
+		 "`student_list"."class" as class,
+		 "`student_list"."section" as section,
+		 "`student_list"."school_name" as school_name,
+		 "question_paper"."subject" as subject,
+		 "question_paper"."paper_code" as paper_code,
+		 "student_response"."question_number" as question_number,
+		 "correct_answer"."correct_option" as correct_option,
+		 "student_response"."option_marked" as marked_option,
+		 
+			CASE
+				 WHEN "correct_answer"."correct_option"  = "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Math' then 1
+				 else 0
+			 end as math_correct,
+		 
+			CASE
+				 WHEN "correct_answer"."correct_option"  != "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Math' then 1
+				 else 0
+			 end as math_wrong,
+		 
+			CASE
+				 WHEN "student_response"."option_marked"  = 'e'
+				 AND	"question_paper"."subject"  = 'Math' then 'YES'
+				 else 'N0'
+			 end as math_yet_to_learn,
+		 sum(CASE
+				 WHEN "correct_answer"."correct_option"  = "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Math' then 1
+				 else 0
+			 end) OVER(PARTITION BY "student_response"."roll_number" , "question_paper"."subject"  ) as math_score,
+		 ((sum(CASE
+				 WHEN "correct_answer"."correct_option"  = "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Math' then 1
+				 else 0
+			 end) OVER(PARTITION BY "student_response"."roll_number" , "question_paper"."subject"  )) / (count(CASE
+				 WHEN "correct_answer"."correct_option"  = "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Math' then 1
+				 else 0
+			 end) OVER(PARTITION BY "student_response"."roll_number" , "question_paper"."subject"  ))) * 100 as math_percent,
+		 
+			CASE
+				 WHEN "correct_answer"."correct_option"  = "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Science' then 1
+				 else 0
+			 end as science_correct,
+		 
+			CASE
+				 WHEN "correct_answer"."correct_option"  != "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Science' then 1
+				 else 0
+			 end as science_wrong,
+		 
+			CASE
+				 WHEN "student_response"."option_marked"  = 'e'
+				 AND	"question_paper"."subject"  = 'Science' then 'YES'
+				 else 'N0'
+			 end as science_yet_to_learn,
+		 sum(CASE
+				 WHEN "correct_answer"."correct_option"  = "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Science' then 1
+				 else 0
+			 end) OVER(PARTITION BY "student_response"."roll_number" , "question_paper"."subject"  ) as science_score,
+		 ((sum(CASE
+				 WHEN "correct_answer"."correct_option"  = "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Science' then 1
+				 else 0
+			 end) OVER(PARTITION BY "student_response"."roll_number" , "question_paper"."subject"  )) / (count(CASE
+				 WHEN "correct_answer"."correct_option"  = "student_response"."option_marked"
+				 AND	"question_paper"."subject"  = 'Science' then 1
+				 else 0
+			 end) OVER(PARTITION BY "student_response"."roll_number" , "question_paper"."subject"  ))) * 100 as science_percen
+FROM  "`student_list"
+JOIN "student_response" ON "`student_list"."roll_number"  = "student_response"."roll_number" 
+JOIN "question_paper" ON "student_response"."question_paper_code"  = "question_paper"."paper_code" 
+JOIN "correct_answer" ON "question_paper"."paper_code"  = "correct_answer"."question_paper_code"  
